@@ -6,6 +6,8 @@ import java.io.OutputStream
 import java.io.IOException
 import java.io.File
 
+import roclas.servers.servlet1.HttpServer1
+
 object Server {
   val port = 7070
   val WEB_ROOT = System.getProperty("user.dir") + File.separator + "webroot"
@@ -15,7 +17,10 @@ object Server {
     println("starting Scala Static Web Server!")
     println(s"WEB_ROOT=${WEB_ROOT}")
     val server = new Server()
+    //println("Now we support servlets as well!")
+    //val server = new HttpServer1();
     server.await()
+
   }
 }
 
@@ -26,7 +31,8 @@ class Server {
       val serverSocket: ServerSocket = new ServerSocket(Server.port, 1, InetAddress.getByName("127.0.0.1"))
       //TODO:exceptions???
       while (!shutdown) {
-        val socket = serverSocket.accept()
+        println(s"the server is in a while loop waiting for requests...")
+        val socket = serverSocket.accept() // until no request is received by the socket, it stops
         val input = socket.getInputStream() //TODO:exceptions???
         val output = socket.getOutputStream() //TODO:exceptions???
         val request = new Request(input)
