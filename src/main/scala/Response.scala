@@ -17,35 +17,35 @@ object Response {
                               |Content-Length: 23
                               |
                               |<h1>File Not Found</h1>"""
+  def Headers200Ok(length:Long):String=s"""HTTP/1.1 200 OK
+        |Date: ${java.util.Calendar.getInstance().getTime()}
+        |Server: Apache/2.4.7 (Ubuntu)
+        |Last-Modified: ${java.util.Calendar.getInstance().getTime()}
+        |ETag: "2d26-530743d181846"
+        |Accept-Ranges: bytes
+        |Content-Length: ${length}
+        |Vary: Accept-Encoding
+        |Connection: close
+        |Content-Type: text/html
+        |
+        |""".stripMargin
+
 }
-class Response (outputStream:OutputStream) {
-  val output = outputStream
+class Response (output:OutputStream) {
   var request: Request = null
-
   def setRequest(r: Request) { request = r }
-
-
   def sendStaticResource() {
-
     var file = new File(Server.WEB_ROOT, request.uri)
-    var fis: InputStream = null
-    try {//TODO:can this be improved?
-      if (!file.exists()) { //TODO: this could be optimized by output.writting Resource.FileNotFoundMessage
-        file = new File(s"${Server.WEB_ROOT}/../webroot2", Response._404)
+    val printStream: PrintStream = new PrintStream(output)
+    try {
+      if (!file.exists()) printStream.print(Response.FileNotFoundMessage)
+      else{
+        printStream.print(Response.Headers200Ok(file.length()))
+        val fis = new FileInputStream(file)
+        Iterator.continually (fis.read).takeWhile(-1 !=).foreach(output.write)
+        fis.close()
       }
-      fis = new FileInputStream(file)
-      writeToResponse(fis)
-    } finally {
-      if (fis != null) fis.close()
-    }
-  }
-
-
-  def writeToResponse(fis: InputStream) {
-    val ch:Int = fis.read(Response.bytes, 0, Response.BUFFER_SIZE)
-    if (ch != -1) {
-      output.write(Response.bytes, 0, ch)
-      writeToResponse(fis)
     }
   }
 }
+
