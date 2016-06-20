@@ -27,11 +27,11 @@ class Response (outputStream:OutputStream) {
 
   def sendStaticResource() {
 
-    var file = new File(Server.WEB_ROOT, request.uri)
+    var file = new File(Main.WEB_ROOT, request.uri)
     var fis: InputStream = null
     try {//TODO:can this be improved?
       if (!file.exists()) { //TODO: this could be optimized by output.writting Resource.FileNotFoundMessage
-        file = new File(s"${Server.WEB_ROOT}/../webroot2", Response._404)
+        file = new File(s"${Main.WEB_ROOT}/../webroot2", Response._404)
       }
       fis = new FileInputStream(file)
       writeToResponse(fis)
